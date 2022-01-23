@@ -6,8 +6,22 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * 用户管理
+ * Class UsersController
+ *
+ * @package App\Http\Controllers
+ */
 class UsersController extends Controller
 {
+    public function __construct ()
+    {
+        // 除了 show、create、store 方法外，其他都需要登录
+        $this->middleware('auth', [
+            'except' => ['show', 'create', 'store'],
+        ]);
+    }
+
     /**
      * 注册用户页面
      *
@@ -61,5 +75,44 @@ class UsersController extends Controller
         session()->flash('success', '欢迎，您将在这里开启一段新的旅程！');
 
         return redirect()->route('users.show', ['user' => $user]);
+    }
+
+    /**
+     * 显示用户编辑页面
+     *
+     * @param User $user
+     *
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     */
+    public function edit (User $user)
+    {
+        // 验证是否可以更新，用户只能更新自己的信息
+        $this->authorize('update', $user);
+
+        return view('users.edit', compact('user'));
+    }
+
+    public function update (User $user, Request $request)
+    {
+        // 验证是否可以更新，用户只能更新自己的信息
+        $this->authorize('update', $user);
+
+        // 输入检查
+        $this->validate($request, [
+            'name' => 'required|max:50',
+            'password' => 'nullable|confirmed|max:255',
+        ]);
+
+        $data = [];
+        $data['name'] = $request->name;
+
+        if ($request->has('password')) {
+            $data['password'] = bcrypt($request->password);
+        }
+
+        $user->update($data);
+
+        session()->flash('success', '用户信息更新成功！');
+        return redirect()->route('users.show', $user);
     }
 }
