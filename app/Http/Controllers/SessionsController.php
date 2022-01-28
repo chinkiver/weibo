@@ -7,12 +7,20 @@ use Illuminate\Support\Facades\Auth;
 
 class SessionsController extends Controller
 {
+    public function __construct()
+    {
+        // 只有访客可以访问登录页面
+        $this->middleware('guest', [
+            'only' => ['create'],
+        ]);
+    }
+
     /**
      * 显示用户登陆页面
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
-    public function create ()
+    public function create()
     {
         return view('sessions.create');
     }
@@ -25,20 +33,21 @@ class SessionsController extends Controller
      * @return \Illuminate\Http\RedirectResponse
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store (Request $request)
+    public function store(Request $request)
     {
         $credentials = $this->validate($request, [
             'email' => 'required|email|max:255',
-            'password' => 'required'
+            'password' => 'required',
         ]);
 
-        if (! Auth::attempt($credentials, $request->has('remember'))) {
+        if ( ! Auth::attempt($credentials, $request->has('remember'))) {
             session()->flash('danger', '很抱歉，您的邮箱和密码不匹配');
             return redirect()->back()->withInput();
         }
 
         session()->flash('success', '欢迎回来！');
-        return redirect()->route('users.show', Auth::user());
+        $fallback = route('users.show', Auth::user());
+        return redirect()->intended($fallback);
     }
 
     /**
@@ -46,7 +55,7 @@ class SessionsController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy ()
+    public function destroy()
     {
         \Log::debug('登出');
         Auth::logout();

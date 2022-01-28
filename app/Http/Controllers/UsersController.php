@@ -14,11 +14,16 @@ use Illuminate\Support\Facades\Auth;
  */
 class UsersController extends Controller
 {
-    public function __construct ()
+    public function __construct()
     {
         // 除了 show、create、store 方法外，其他都需要登录
         $this->middleware('auth', [
             'except' => ['show', 'create', 'store'],
+        ]);
+
+        // 访客可以访问注册页面
+        $this->middleware('guest', [
+            'only' => ['create'],
         ]);
     }
 
@@ -27,7 +32,7 @@ class UsersController extends Controller
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
-    public function create ()
+    public function create()
     {
         return view('users.create');
     }
@@ -39,7 +44,7 @@ class UsersController extends Controller
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
-    public function show (User $user)
+    public function show(User $user)
     {
         return view('users.show', compact('user'));
     }
@@ -52,13 +57,13 @@ class UsersController extends Controller
      * @return \Illuminate\Http\RedirectResponse
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store (Request $request)
+    public function store(Request $request)
     {
         // 输入验证
         $this->validate($request, [
             'name' => 'required|unique:users|max:50',
             'email' => 'required|email|unique:users|max:255',
-            'password' => 'required|confirmed|min:6'
+            'password' => 'required|confirmed|min:6',
         ]);
 
         // 保存用户
@@ -84,7 +89,7 @@ class UsersController extends Controller
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
-    public function edit (User $user)
+    public function edit(User $user)
     {
         // 验证是否可以更新，用户只能更新自己的信息
         $this->authorize('update', $user);
@@ -92,7 +97,7 @@ class UsersController extends Controller
         return view('users.edit', compact('user'));
     }
 
-    public function update (User $user, Request $request)
+    public function update(User $user, Request $request)
     {
         // 验证是否可以更新，用户只能更新自己的信息
         $this->authorize('update', $user);
