@@ -18,7 +18,7 @@ class UsersController extends Controller
     {
         // 除了 show、create、store 方法外，其他都需要登录
         $this->middleware('auth', [
-            'except' => ['show', 'create', 'store'],
+            'except' => ['show', 'create', 'store', 'index'],
         ]);
 
         // 访客可以访问注册页面
@@ -35,6 +35,14 @@ class UsersController extends Controller
     public function create()
     {
         return view('users.create');
+    }
+
+    public function index()
+    {
+        // 分页
+        $users = User::paginate(10);
+
+        return view('users.index', compact('users'));
     }
 
     /**
