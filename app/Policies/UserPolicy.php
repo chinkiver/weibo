@@ -14,7 +14,7 @@ class UserPolicy
      *
      * @return void
      */
-    public function __construct ()
+    public function __construct()
     {
         //
     }
@@ -27,8 +27,21 @@ class UserPolicy
      *
      * @return bool
      */
-    public function update (User $currentUser, User $user)
+    public function update(User $currentUser, User $user)
     {
         return $currentUser->id === $user->id;
+    }
+
+    /**
+     * 当前用户为管理员，且自己不能删除自己
+     *
+     * @param User $currentUser
+     * @param User $user
+     *
+     * @return bool
+     */
+    public function destroy(User $currentUser, User $user)
+    {
+        return $currentUser->is_admin && $currentUser->id !== $user->id;
     }
 }
