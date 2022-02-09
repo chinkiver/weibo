@@ -12,6 +12,14 @@ use Illuminate\Support\Str;
 
 class PasswordController extends Controller
 {
+    public function __construct()
+    {
+        // 限流规则为 —— 10 分钟内只能尝试 3 次
+        $this->middleware('throttle:3,10', [
+            'only' => ['sendResetLinkEmail']
+        ]);
+    }
+
     /**
      * 显示找回密码页面
      */

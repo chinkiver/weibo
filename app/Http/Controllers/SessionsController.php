@@ -19,6 +19,11 @@ class SessionsController extends Controller
         $this->middleware('guest', [
             'only' => ['create'],
         ]);
+
+        // 登录限流，10 分钟内只能尝试 10 次
+        $this->middleware('throttle:10,10', [
+            'only' => 'store',
+        ]);
     }
 
     /**
