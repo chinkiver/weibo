@@ -22,7 +22,8 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => $password,
             'remember_token' => Str::random(10),
-            'is_admin' => FALSE,
+            'is_admin' => false,
+            'activated' => true,
         ];
     }
 
@@ -35,7 +36,7 @@ class UserFactory extends Factory
     {
         return $this->state(function(array $attributes) {
             return [
-                'email_verified_at' => NULL,
+                'email_verified_at' => null,
             ];
         });
     }

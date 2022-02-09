@@ -81,6 +81,10 @@ class UsersController extends Controller
         $user->password = bcrypt($request->password);
         $user->save();
 
+        $user = User::create([
+
+        ]);
+
         // 直接登录
         Auth::login($user);
 
@@ -127,5 +131,10 @@ class UsersController extends Controller
 
         session()->flash('success', '用户信息更新成功！');
         return redirect()->route('users.show', $user);
+    }
+
+    public function confirmEmail(string $token)
+    {
+
     }
 }
