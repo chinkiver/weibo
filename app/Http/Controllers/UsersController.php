@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * 用户管理
@@ -18,7 +19,7 @@ class UsersController extends Controller
     {
         // 除了 show、create、store 方法外，其他都需要登录
         $this->middleware('auth', [
-            'except' => ['show', 'create', 'store', 'index'],
+            'except' => ['show', 'create', 'store', 'index', 'confirmEmail'],
         ]);
 
         // 访客可以访问注册页面
@@ -75,23 +76,42 @@ class UsersController extends Controller
         ]);
 
         // 保存用户
-        $user = new User();
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->password = bcrypt($request->password);
-        $user->save();
-
         $user = User::create([
-
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
         ]);
 
         // 直接登录
-        Auth::login($user);
+//        Auth::login($user);
+//        return redirect()->route('users.show', ['user' => $user]);
+
+        // 改称为需要验证邮件
+        $this->sendEmailConfirmationTo($user);
 
         // 提示
         session()->flash('success', '欢迎，您将在这里开启一段新的旅程！');
+        session()->flash('success', '验证邮件已发送到你的注册邮箱上，请注意查收。');
+        return redirect('/');
+    }
 
-        return redirect()->route('users.show', ['user' => $user]);
+    /**
+     * 发送激活邮件
+     *
+     * @param User $user
+     */
+    private function sendEmailConfirmationTo(User $user)
+    {
+        $view = 'emails.confirm';
+        $data = compact('user');
+        $from = 'weibo@mail.com';
+        $name = 'Summer';
+        $to = $user->email;
+        $subject = "感谢注册 Weibo 应用！请确认你的邮箱。";
+
+        Mail::send($view, $data, function ($message) use ($from, $name, $to, $subject) {
+            $message->from($from, $name)->to($to)->subject($subject);
+        });
     }
 
     /**
@@ -100,6 +120,7 @@ class UsersController extends Controller
      * @param User $user
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function edit(User $user)
     {
@@ -133,8 +154,23 @@ class UsersController extends Controller
         return redirect()->route('users.show', $user);
     }
 
+    /**
+     * 用户激活邮件
+     *
+     * @param string $token
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function confirmEmail(string $token)
     {
+        $user = User::where('activation_token', $token)->firstOrFail();
 
+        $user->activated = true;
+        $user->activation_token = '';
+        $user->save();
+
+        Auth::login($user);
+        session()->flash('success', '恭喜你，激活成功！');
+        return redirect()->route('users.show', [$user]);
     }
 }
