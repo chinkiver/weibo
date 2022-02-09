@@ -3,27 +3,35 @@
 
 @section('content')
   <div class="offset-md-2 col-md-8">
-    <div class="card ">
-      <div class="card-header">
-        <h5>用户登录</h5>
-      </div>
+    <div class="card">
       <div class="card-body">
-        @include('shared._errors')
+        <div class="card-header">
+          <h2>用户登录</h2>
+        </div>
+
+        <div class="card-text">
+          @include('shared._errors')
+        </div>
 
         <form method="POST" action="{{ route('login') }}">
           @csrf
 
-          <div class="form-group">
-            <label for="email">邮箱：</label>
+          <div class="mb-3">
+            <label class="form-label" for="email">邮箱：</label>
             <input type="text" name="email" class="form-control" value="{{ old('email') }}">
           </div>
 
-          <div class="form-group">
-            <label for="password">密码：</label>
+          <div class="mb-3">
+            <label class="form-label" for="password">密码：</label>
             <input type="password" name="password" class="form-control" value="{{ old('password') }}">
           </div>
 
-          <div class="form-group">
+          <div class="mb-3">
+            <label class="form-label" for="password">密码（<a href="{{ route('password.request') }}">忘记密码</a>）：</label>
+            <input type="password" name="password" class="form-control" value="{{ old('password') }}">
+          </div>
+
+          <div class="mb-3">
             <div class="form-check">
               <input type="checkbox" class="form-check-input" name="remember" id="exampleCheck1">
               <label class="form-check-label" for="exampleCheck1">记住我</label>

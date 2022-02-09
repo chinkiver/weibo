@@ -31,3 +31,15 @@ Route::delete('logout', 'SessionsController@destroy')->name('logout');
 
 // 注册后，激活邮箱
 Route::get('signup/confirm/{token}', 'UsersController@confirmEmail')->name('confirm_email');
+
+// 显示找回密码页面
+Route::get('password/reset',  'PasswordController@showLinkRequestForm')->name('password.request');
+
+// 向用户输入的邮箱发送 token 邮件（前提得存在该邮箱的用户）
+Route::post('password/email',  'PasswordController@sendResetLinkEmail')->name('password.email');
+
+// 根据 token 显示密码重置页面
+Route::get('password/reset/{token}',  'PasswordController@showResetForm')->name('password.reset');
+
+// 重置密码
+Route::post('password/reset',  'PasswordController@reset')->name('password.update');
