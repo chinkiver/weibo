@@ -14,11 +14,11 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        User::factory()->count(100)->create();
+        User::factory()->count(10)->create();
 
         $user = User::find(1);
         $user->name = 'chenyong';
-        $user->email = 'chenyong@example.com';
+        $user->email = 'chenyong@mail.com';
         $user->is_admin = TRUE;
         $user->save();
     }

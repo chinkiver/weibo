@@ -29,7 +29,7 @@ class UsersController extends Controller
 
         // 注册限流 一个小时内只能提交 10 次请求；
         $this->middleware('throttle:10,60', [
-            'only' => ['store']
+            'only' => ['store'],
         ]);
     }
 
@@ -60,7 +60,14 @@ class UsersController extends Controller
      */
     public function show(User $user)
     {
-        return view('users.show', compact('user'));
+        // 显示该用户所发布的微博
+        $statuses = $user->statuses();
+
+        if ( ! is_null($statuses)) {
+            $statuses = $statuses->orderBy('created_at', 'desc')->paginate(20);
+        }
+
+        return view('users.show', compact('user', 'statuses'));
     }
 
     /**
@@ -112,7 +119,7 @@ class UsersController extends Controller
         $to = $user->email;
         $subject = "感谢注册 Weibo 应用！请确认你的邮箱。";
 
-        Mail::send($view, $data, function ($message) use ($to, $subject) {
+        Mail::send($view, $data, function($message) use ($to, $subject) {
             $message->to($to)->subject($subject);
         });
     }
