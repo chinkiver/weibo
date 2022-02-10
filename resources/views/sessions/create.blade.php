@@ -22,11 +22,6 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label" for="password">密码：</label>
-            <input type="password" name="password" class="form-control" value="{{ old('password') }}">
-          </div>
-
-          <div class="mb-3">
             <label class="form-label" for="password">密码（<a href="{{ route('password.request') }}">忘记密码</a>）：</label>
             <input type="password" name="password" class="form-control" value="{{ old('password') }}">
           </div>
