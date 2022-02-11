@@ -10,6 +10,9 @@ namespace App\Models;
  */
 class Status extends Model
 {
+    // 可批量编辑的字段
+    protected $fillable = ['content'];
+
     /**
      * 所关联的用户
      */

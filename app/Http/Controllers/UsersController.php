@@ -64,7 +64,7 @@ class UsersController extends Controller
         $statuses = $user->statuses();
 
         if ( ! is_null($statuses)) {
-            $statuses = $statuses->orderBy('created_at', 'desc')->paginate(20);
+            $statuses = $statuses->orderBy('created_at', 'desc')->paginate(10);
         }
 
         return view('users.show', compact('user', 'statuses'));
