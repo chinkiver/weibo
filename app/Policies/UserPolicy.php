@@ -10,16 +10,6 @@ class UserPolicy
     use HandlesAuthorization;
 
     /**
-     * Create a new policy instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
-
-    /**
      * 当前登录用户ID与本身用户ID相同时，方可更新
      *
      * @param User $currentUser
@@ -43,5 +33,18 @@ class UserPolicy
     public function destroy(User $currentUser, User $user)
     {
         return $currentUser->is_admin && $currentUser->id !== $user->id;
+    }
+
+    /**
+     * 用户不能自己关注自己
+     *
+     * @param User $currentUser
+     * @param User $user
+     *
+     * @return bool
+     */
+    public function follow(User $currentUser, User $user)
+    {
+        return $currentUser->id !== $user->id;
     }
 }

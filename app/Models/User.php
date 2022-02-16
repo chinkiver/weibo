@@ -49,7 +49,7 @@ class User extends Authenticatable
      *
      * @return string
      */
-    public function gravatar($size = 100) : string
+    public function gravatar($size = 100):string
     {
         $hash = md5(strtolower(trim($this->attributes['email'])));
 //        return "http://www.gravatar.com/avatar/$hash?s=$size";
@@ -58,7 +58,7 @@ class User extends Authenticatable
     }
 
     /**
-     * 用户可以发布多条微博
+     * 用户所发布的多条微博
      */
     public function statuses()
     {
@@ -72,11 +72,19 @@ class User extends Authenticatable
      */
     public function feed()
     {
-        return $this->statuses()->orderByDesc('created_at');
+        // 获取关注用户 ID 列表
+        $userIds = $this->followings->pluck('id')->toArray();
+
+        // 将当前用户 ID 加入到关注用户列表
+        array_push($userIds, $this->id);
+
+        return Status::whereIn('user_id', $userIds)
+            ->with('user') // 所关联的用户对象
+            ->orderBy('created_at', 'desc');
     }
 
     /**
-     * 关注某一个用户
+     * 用户所拥有的多个粉丝
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
@@ -86,7 +94,7 @@ class User extends Authenticatable
     }
 
     /**
-     * 哪些人关注了某一用户
+     * 用户所关注的多个用户
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
@@ -96,35 +104,35 @@ class User extends Authenticatable
     }
 
     /**
-     * 关注用户
+     * 关注用户操作
      *
-     * @param $userIds
+     * @param mixed $userIds 关注的用户列表
      */
     public function follow($userIds)
     {
-        if ( ! is_array($userIds)) {
+        if (! is_array($userIds)) {
             $userIds = compact('userIds');
         }
 
-        $this->followers()->sync($userIds, false);
+        $this->followings()->sync($userIds, false);
     }
 
     /**
-     * 取消关注
+     * 取消关注操作
      *
-     * @param $userIds
+     * @param mixed $userIds 关注的用户列表
      */
     public function unfollow($userIds)
     {
-        if ( ! is_array($userIds)) {
+        if (! is_array($userIds)) {
             $userIds = compact('userIds');
         }
 
-        $this->followers()->detach($userIds);
+        $this->followings()->detach($userIds);
     }
 
     /**
-     * 该用户是否已经关注了某个用户
+     * 该用户是否已经关注了某个用户判断
      *
      * @param int $userId 被关注人
      *

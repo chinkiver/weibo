@@ -8,23 +8,26 @@
         @include('shared._user_info', ['user' => $user])
       </section>
 
+      @if(Auth::check())
+        @include('users._follow_form')
+      @endif
+
+      <section class="stats mt-2">
+        @include('shared._stats', ['user' => $user])
+      </section>
+      <hr>
       <section class="status">
         @if (is_null($statuses))
-
           <p>没有数据！</p>
-
         @else
-
           <ul class="list-unstyled">
             @foreach ($statuses as $status)
               @include('statuses._status')
             @endforeach
           </ul>
-
           <div class="mt-5">
             {!! $statuses->render() !!}
           </div>
-
         @endif
       </section>
     </div>

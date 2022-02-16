@@ -35,39 +35,10 @@ class UsersController extends Controller
 
     /**
      * 注册用户页面
-     *
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
     public function create()
     {
         return view('users.create');
-    }
-
-    public function index()
-    {
-        // 分页
-        $users = User::paginate(10);
-
-        return view('users.index', compact('users'));
-    }
-
-    /**
-     * 显示用户详细
-     *
-     * @param User $user
-     *
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
-     */
-    public function show(User $user)
-    {
-        // 显示该用户所发布的微博
-        $statuses = $user->statuses();
-
-        if ( ! is_null($statuses)) {
-            $statuses = $statuses->orderBy('created_at', 'desc')->paginate(10);
-        }
-
-        return view('users.show', compact('user', 'statuses'));
     }
 
     /**
@@ -125,11 +96,41 @@ class UsersController extends Controller
     }
 
     /**
+     * 用户列表
+     */
+    public function index()
+    {
+        // 分页
+        $users = User::paginate(10);
+
+        return view('users.index', compact('users'));
+    }
+
+    /**
+     * 显示用户详细
+     *
+     * @param User $user
+     *
+     * @return \Illuminate\Contracts\View\View
+     */
+    public function show(User $user)
+    {
+        // 显示该用户所发布的微博
+        $statuses = $user->statuses();
+
+        if (! is_null($statuses)) {
+            $statuses = $statuses->orderBy('created_at', 'desc')->paginate(10);
+        }
+
+        return view('users.show', compact('user', 'statuses'));
+    }
+
+    /**
      * 显示用户编辑页面
      *
      * @param User $user
      *
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     * @return \Illuminate\Contracts\View\View
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function edit(User $user)
@@ -140,6 +141,16 @@ class UsersController extends Controller
         return view('users.edit', compact('user'));
     }
 
+    /**
+     * 更新用户信息
+     *
+     * @param User    $user
+     * @param Request $request
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function update(User $user, Request $request)
     {
         // 验证是否可以更新，用户只能更新自己的信息
@@ -182,5 +193,27 @@ class UsersController extends Controller
         Auth::login($user);
         session()->flash('success', '恭喜你，激活成功！');
         return redirect()->route('users.show', [$user]);
+    }
+
+    /**
+     * 显示用户的关注人列表
+     */
+    public function followings(User $user)
+    {
+        $users = $user->followings()->paginate(10);
+        $title = $user->name . ' 关注的人';
+
+        return view('users.show_follow', compact('users', 'title'));
+    }
+
+    /**
+     * 显示用户的粉丝列表
+     */
+    public function followers(User $user)
+    {
+        $users = $user->followers()->paginate(10);
+        $title = $user->name . ' 的粉丝';
+
+        return view('users.show_follow', compact('users', 'title'));
     }
 }
